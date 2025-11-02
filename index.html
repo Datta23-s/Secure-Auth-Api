@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Auth System - JWT &amp; RBAC</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="background-gradient"></div>
+    
+    <!-- Login View -->
+    <div id="loginView" class="view active">
+        <div class="glass-container">
+            <div class="glass-card">
+                <div class="card-header">
+                    <div class="lock-icon">🔐</div>
+                    <h1>Secure Authentication</h1>
+                    <p class="subtitle">Enterprise-Grade Security System</p>
+                </div>
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" class="form-control" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" class="form-control" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+                </form>
+                <div class="divider">OR</div>
+                <button id="showRegisterBtn" class="btn btn-secondary btn-full">Create New Account</button>
+                <div id="loginMessage" class="message"></div>
+                <div class="demo-credentials">
+                    <p><strong>Demo Accounts:</strong></p>
+                    <p>👨‍💼 Admin: admin@company.com / AdminPass123!</p>
+                    <p>📊 Manager: manager@company.com / ManagerPass123!</p>
+                    <p>👤 User: user@company.com / UserPass123!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register View -->
+    <div id="registerView" class="view">
+        <div class="glass-container">
+            <div class="glass-card">
+                <div class="card-header">
+                    <div class="lock-icon">📝</div>
+                    <h1>Create Account</h1>
+                    <p class="subtitle">Join our secure platform</p>
+                </div>
+                <form id="registerForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="registerName">Full Name</label>
+                        <input type="text" id="registerName" class="form-control" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email Address</label>
+                        <input type="email" id="registerEmail" class="form-control" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" class="form-control" placeholder="Min 8 chars, 1 uppercase, 1 number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerRole">Role</label>
+                        <select id="registerRole" class="form-control">
+                            <option value="User">User</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Register</button>
+                </form>
+                <div class="divider"></div>
+                <button id="showLoginBtn" class="btn btn-secondary btn-full">Back to Login</button>
+                <div id="registerMessage" class="message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2FA Selection View -->
+    <div id="twoFactorView" class="view">
+        <div class="glass-container">
+            <div class="glass-card">
+                <div class="card-header">
+                    <div class="lock-icon">🛡️</div>
+                    <h1>Two-Factor Authentication</h1>
+                    <p class="subtitle">Choose your verification method</p>
+                </div>
+                <div class="twofa-options">
+                    <button id="setupTotpBtn" class="twofa-option">
+                        <span class="option-icon">📱</span>
+                        <h3>Authenticator App</h3>
+                        <p>Use TOTP with Google Authenticator or similar apps</p>
+                    </button>
+                    <button id="setupEmailOtpBtn" class="twofa-option">
+                        <span class="option-icon">📧</span>
+                        <h3>Email OTP</h3>
+                        <p>Receive verification code via email</p>
+                    </button>
+                </div>
+                <button id="skip2FABtn" class="btn btn-secondary btn-full">Skip for Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOTP Setup View -->
+    <div id="totpSetupView" class="view">
+        <div class="glass-container">
+            <div class="glass-card">
+                <div class="card-header">
+                    <div class="lock-icon">📱</div>
+                    <h1>Setup TOTP</h1>
+                    <p class="subtitle">Scan QR code with your authenticator app</p>
+                </div>
+                <div class="qr-section">
+                    <div id="qrCode" class="qr-code"></div>
+                    <div class="secret-key">
+                        <p><strong>Secret Key:</strong></p>
+                        <code id="totpSecret"></code>
+                    </div>
+                </div>
+                <form id="totpVerifyForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="totpCode">Verification Code</label>
+                        <input type="text" id="totpCode" class="form-control" placeholder="Enter 6-digit code" maxlength="6" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Verify &amp; Enable</button>
+                </form>
+                <button id="cancelTotpBtn" class="btn btn-secondary btn-full">Cancel</button>
+                <div id="totpMessage" class="message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email OTP View -->
+    <div id="emailOtpView" class="view">
+        <div class="glass-container">
+            <div class="glass-card">
+                <div class="card-header">
+                    <div class="lock-icon">📧</div>
+                    <h1>Email Verification</h1>
+                    <p class="subtitle">Enter the code sent to your email</p>
+                </div>
+                <div class="otp-info">
+                    <p>A 6-digit verification code has been sent to:</p>
+                    <p class="email-display" id="otpEmailDisplay"></p>
+                </div>
+                <form id="emailOtpForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="emailOtpCode">Verification Code</label>
+                        <input type="text" id="emailOtpCode" class="form-control" placeholder="Enter 6-digit code" maxlength="6" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Verify Code</button>
+                </form>
+                <button id="resendOtpBtn" class="btn btn-secondary btn-full">Resend Code</button>
+                <button id="cancelOtpBtn" class="btn btn-secondary btn-full">Cancel</button>
+                <div id="emailOtpMessage" class="message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="view">
+        <div class="dashboard-container">
+            <!-- Header -->
+            <header class="dashboard-header glass-card">
+                <div class="header-left">
+                    <h1>🔐 Enterprise Auth Dashboard</h1>
+                    <p id="welcomeMessage"></p>
+                </div>
+                <div class="header-right">
+                    <button id="logoutBtn" class="btn btn-danger">Logout</button>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <div class="dashboard-content">
+                <!-- User Profile Section -->
+                <div class="dashboard-section glass-card">
+                    <div class="section-header">
+                        <h2>👤 User Profile</h2>
+                    </div>
+                    <div class="profile-info">
+                        <div class="info-row">
+                            <span class="label">Name:</span>
+                            <span id="profileName" class="value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Email:</span>
+                            <span id="profileEmail" class="value"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Role:</span>
+                            <span id="profileRole" class="value badge"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">2FA Status:</span>
+                            <span id="profile2FA" class="value"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- JWT Tokens Section -->
+                <div class="dashboard-section glass-card">
+                    <div class="section-header">
+                        <h2>🎫 JWT Tokens</h2>
+                        <button id="refreshTokenBtn" class="btn btn-small">Refresh Token</button>
+                    </div>
+                    <div class="token-info">
+                        <div class="token-block">
+                            <h4>Access Token</h4>
+                            <div class="token-display" id="accessTokenDisplay"></div>
+                            <div class="token-meta">
+                                <span>Expires: <span id="accessTokenExpiry"></span></span>
+                            </div>
+                        </div>
+                        <div class="token-block">
+                            <h4>Refresh Token</h4>
+                            <div class="token-display" id="refreshTokenDisplay"></div>
+                            <div class="token-meta">
+                                <span>Expires: <span id="refreshTokenExpiry"></span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permissions Section -->
+                <div class="dashboard-section glass-card">
+                    <div class="section-header">
+                        <h2>🔑 Your Permissions</h2>
+                    </div>
+                    <div id="permissionsList" class="permissions-grid"></div>
+                </div>
+
+                <!-- API Endpoints Section -->
+                <div class="dashboard-section glass-card">
+                    <div class="section-header">
+                        <h2>🌐 API Endpoints</h2>
+                    </div>
+                    <div id="endpointsList" class="endpoints-list"></div>
+                </div>
+
+                <!-- Security Config Section -->
+                <div class="dashboard-section glass-card">
+                    <div class="section-header">
+                        <h2>⚙️ Security Configuration</h2>
+                    </div>
+                    <div class="security-config">
+                        <div class="config-group">
+                            <h4>JWT Settings</h4>
+                            <ul>
+                                <li>Algorithm: <strong>HS256</strong></li>
+                                <li>Access Token Expiry: <strong>15 minutes</strong></li>
+                                <li>Refresh Token Expiry: <strong>7 days</strong></li>
+                                <li>Issuer: <strong>https://auth.company.com</strong></li>
+                            </ul>
+                        </div>
+                        <div class="config-group">
+                            <h4>Rate Limiting</h4>
+                            <ul>
+                                <li>Login Attempts: <strong>5 per 15 minutes</strong></li>
+                                <li>API Requests: <strong>100 per minute</strong></li>
+                                <li>Token Refresh: <strong>30 per hour</strong></li>
+                            </ul>
+                        </div>
+                        <div class="config-group">
+                            <h4>Password Policy</h4>
+                            <ul>
+                                <li>Minimum Length: <strong>8 characters</strong></li>
+                                <li>Requirements: <strong>Uppercase, Lowercase, Numbers, Special chars</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Log Section -->
+                <div class="dashboard-section glass-card">
+                    <div class="section-header">
+                        <h2>📋 Security Audit Log</h2>
+                    </div>
+                    <div id="auditLogList" class="audit-log"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
